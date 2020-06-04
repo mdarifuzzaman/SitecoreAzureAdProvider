@@ -1,0 +1,120 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+
+<configuration xmlns:patch="http://www.sitecore.net/xmlconfig/" xmlns:role="http://www.sitecore.net/xmlconfig/role/" xmlns:set="http://www.sitecore.net/xmlconfig/set/">
+  <sitecore role:require="Standalone or ContentDelivery or ContentManagement">
+    <sc.variable name="identityServerAuthority" value="https://sc93identityserver.dev.local" />
+
+    <settings>
+      <!-- Below settings describes your Azure AD settings -->
+      <!-- you need to replace below client id with your azure application ID that we preserved from step 5 of Azure AD configuration -->
+      <setting name="ClientId" value="bf30b168-2888-461e-a949-dea82d60c75b" />
+      <setting name="AADInstance" value="https://login.microsoftonline.com/{0}" />
+      <setting name="AuthorityUri" value="https://login.microsoftonline.com/common/" />
+      <!-- you need to replace below Tenant with your azure AD domain which we created from step 2 of Azure AD configuration -->
+      <setting name="Tenant" value="a3119798-5c0b-40e0-9e5d-a5ac8c55158e" />
+      <!-- your Sitecore instance login url-->
+      <setting name="PostLogoutRedirectURI" value="https://sc93sc.dev.local/sitecore/login" />
+      <!-- your Sitecore instance Url-->
+      <setting name="RedirectURI" value="https://sc93sc.dev.local/sitecore" />
+    </settings>
+
+    <services>
+    </services>
+
+    <pipelines>
+      <owin.identityProviders>
+        <processor type="AzureAdProviderApp.Pipelines.AzureAd.AzureADIdentityProviderProcessor, AzureAdProviderApp" resolve="true" />
+      </owin.identityProviders>
+      <!--<owin.initialize>
+        <processor type="Sitecore.Owin.Authentication.IdentityServer.Pipelines.Initialize.InterceptLegacyShellLoginPage, Sitecore.Owin.Authentication.IdentityServer" patch:before="processor[@method='Authenticate']" resolve="true">
+          <legacyShellLoginPage>/sitecore/login</legacyShellLoginPage>
+        </processor>
+        <processor type="Sitecore.Owin.Authentication.IdentityServer.Pipelines.Initialize.JwtBearerAuthentication, Sitecore.Owin.Authentication.IdentityServer" patch:before="processor[@method='Authenticate']" resolve="true">
+          <identityProviderName>SitecoreIdentityServer</identityProviderName>
+          <audiences hint="raw:AddAudience">
+            <audience value="$(identityServerAuthority)/resources" />
+          </audiences>
+          <issuers hint="list">
+            <issuer>$(identityServerAuthority)</issuer>
+          </issuers>
+        </processor>
+        <processor type="Sitecore.Owin.Authentication.IdentityServer.Pipelines.Initialize.LogoutEndpoint, Sitecore.Owin.Authentication.IdentityServer" resolve="true" patch:before="processor[@method='Authenticate']" />
+      </owin.initialize>-->
+    </pipelines>
+
+    <federatedAuthentication>
+      <identityProvidersPerSites>
+        <mapEntry name="sites with the core and unspecified database">
+
+          <identityProviders hint="list:AddIdentityProvider">
+            <identityProvider ref="federatedAuthentication/identityProviders/identityProvider[@id='AzureAd']" id="SitecoreAzureAdServer" />
+          </identityProviders>
+          <externalUserBuilder type="Sitecore.Owin.Authentication.Services.DefaultExternalUserBuilder, Sitecore.Owin.Authentication" resolve="true">
+            <param desc="isPersistentUser">false</param>
+          </externalUserBuilder>
+        </mapEntry>
+
+
+        <!-- An example that maps a sub-provider of the Identity Server to the sites that are not mapped to the SitecoreIdentityServer. -->
+        <!--
+        <mapEntry name="all sites">
+          <identityProviders hint="list:AddIdentityProvider">
+            <identityProvider ref="federatedAuthentication/identityProviders/identityProvider[@id='SitecoreIdentityServer/IdS4-AzureAd']" />
+          </identityProviders>
+        </mapEntry>
+        -->
+      </identityProvidersPerSites>
+
+
+
+      <identityProviders>
+        <identityProvider id="AzureAd" type="Sitecore.Owin.Authentication.Configuration.DefaultIdentityProvider, Sitecore.Owin.Authentication">
+          <param desc="name">$(id)</param>
+          <param desc="domainManager" type="Sitecore.Abstractions.BaseDomainManager" resolve="true" />
+          <caption>Log in with Microsoft Azure</caption>
+          <icon>/sitecore/shell/themes/standard/Custom/24x24/msazure.png</icon>
+          <domain>sitecore</domain>
+          <enabled>true</enabled>
+          <transformations hint="list:AddTransformation">
+            <!-- you need to have and Idp Claim for this to work-->
+            <transformation name="Idp Claim" type="Sitecore.Owin.Authentication.Services.SetIdpClaimTransform, Sitecore.Owin.Authentication" />
+
+            <transformation name="devRole" type="Sitecore.Owin.Authentication.Services.DefaultTransformation, Sitecore.Owin.Authentication">
+              <sources hint="raw:AddSource">
+                <claim name="groups" value="2ea20d7b-4cd3-4a36-b760-39208ef50290" />
+              </sources>
+              <targets hint="raw:AddTarget">
+                <claim name="http://schemas.microsoft.com/ws/2008/06/identity/claims/role" value="Sitecore\Admin" />
+              </targets>
+              <keepSource>true</keepSource>
+            </transformation>
+          </transformations>
+        </identityProvider>
+      </identityProviders>
+
+
+      <!-- Property initializer assigns claim values to sitecore user properties -->
+      <propertyInitializer type="Sitecore.Owin.Authentication.Services.PropertyInitializer, Sitecore.Owin.Authentication">
+        <maps hint="list">
+          <map name="email claim" type="Sitecore.Owin.Authentication.Services.DefaultClaimToPropertyMapper, Sitecore.Owin.Authentication" resolve="true">
+            <data hint="raw:AddData">
+              <!--claim name-->
+              <source name="http://schemas.xmlsoap.org/ws/2005/05/identity/claims/emailaddress" />
+              <!--property name-->
+              <target name="Email" />
+            </data>
+          </map>
+          <map name="Name claim" type="Sitecore.Owin.Authentication.Services.DefaultClaimToPropertyMapper, Sitecore.Owin.Authentication" resolve="true">
+            <data hint="raw:AddData">
+              <!--claim name-->
+              <source name="http://schemas.xmlsoap.org/ws/2005/05/identity/claims/givenname" />
+              <!--property name-->
+              <target name="Name" />
+            </data>
+          </map>
+        </maps>
+      </propertyInitializer>
+
+    </federatedAuthentication>
+  </sitecore>
+</configuration>
