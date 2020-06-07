@@ -157,6 +157,7 @@
   <ItemGroup>
     <Compile Include="App_Start\RouteConfig.cs" />
     <Compile Include="Helpers\UserBuilder.cs" />
+    <Compile Include="Helpers\UserBuilderOkta.cs" />
     <Compile Include="Helpers\UserPropertyInitializer.cs" />
     <Compile Include="Pipelines\AzureAd\AzureADIdentityProviderProcessor.cs" />
     <Compile Include="Pipelines\Okta\OktaIdentityProviderProcessor.cs" />

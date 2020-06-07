@@ -42,7 +42,7 @@ namespace AzureAdProviderApp.Helpers
             }
             else if (isOkta)
             {
-                if (!user.RuntimeSettings.IsVirtual && (isOktaAdminGroup))
+                if (isOktaAdminGroup)
                 {
                     if (MainUtil.GetBool(user.Profile.GetCustomProperty("IsAdminMapped"), false))
                     {
