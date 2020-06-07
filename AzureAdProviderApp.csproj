@@ -80,6 +80,12 @@
     <Reference Include="Newtonsoft.Json, Version=10.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
       <HintPath>..\packages\Newtonsoft.Json.10.0.1\lib\net45\Newtonsoft.Json.dll</HintPath>
     </Reference>
+    <Reference Include="Okta.AspNet, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\Okta.AspNet.1.0.0\lib\net452\Okta.AspNet.dll</HintPath>
+    </Reference>
+    <Reference Include="Okta.AspNet.Abstractions, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\Okta.AspNet.Abstractions.1.0.0\lib\net452\Okta.AspNet.Abstractions.dll</HintPath>
+    </Reference>
     <Reference Include="Owin, Version=1.0.0.0, Culture=neutral, PublicKeyToken=f0ebd12fd5e55cc5, processorArchitecture=MSIL">
       <HintPath>..\packages\Owin.1.0\lib\net40\Owin.dll</HintPath>
     </Reference>
@@ -153,12 +159,12 @@
     <Compile Include="Helpers\UserBuilder.cs" />
     <Compile Include="Helpers\UserPropertyInitializer.cs" />
     <Compile Include="Pipelines\AzureAd\AzureADIdentityProviderProcessor.cs" />
+    <Compile Include="Pipelines\Okta\OktaIdentityProviderProcessor.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="App_Config\Include\Sitecore.Owin.Authentication.AzureAd\Sitecore.Owin.Authentication.AzureAd.config" />
-    <Content Include="App_Config\Include\Sitecore.Owin.Authentication.AzureAd\Sitecore.Owin.Authentication.AzureAd.Enabler.config" />
-    <None Include="App_Config\Include\Sitecore.Owin.Authentication.AzureAd\IntranetSiteDefinition.config" />
+    <Content Include="App_Config\Include\Sitecore.Owin.Authentication.Okta\Sitecore.Owin.Authentication.Okta.config" />
     <None Include="packages.config" />
     <None Include="Properties\PublishProfiles\FolderProfile.pubxml" />
   </ItemGroup>
